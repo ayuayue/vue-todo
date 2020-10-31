@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VUE Todo Tutorial</title>
+    <style>
+        .empty {
+            border-color: red;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        {{ message }}
+        <input type="text" v-model="value" v-bind:class='{empty: !count}'>
+        <input type="button" value="发送" v-on:click="send">
+        <div v-if="value.length >0">
+            value 的值是: {{value}}
+        </div>
+        <!-- 引用 count -->
+        <div v-if="value.length >0">字数：{{ count }}</div>
+    </div>
+</body>
+<script src="https://cdn.bootcss.com/vue/2.5.16/vue.js">
+</script>
+<script>
+    var app = new Vue({
+        el: "#app",
+        data: function () {
+            return { message: 'Hello Vue!', value: "" }
+        },
+        methods: {
+            send: function () {
+                if (this.value.length <= 0) {
+                    alert("请输入内容")
+                    return
+                }
+                ok = true
+                alert("提交成功")
+                this.value = '';
+
+            }
+        },
+        computed: {
+            count: function () {
+                return this.value.length
+            }
+        }
+    })
+</script>
+
+</html>
