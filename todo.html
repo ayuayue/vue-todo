@@ -8,11 +8,9 @@
         .completed {
             text-decoration: line-through;
         }
-
         .selected {
             color: red;
         }
-
         .empty {
             border-color: red;
         }
@@ -30,8 +28,10 @@
         <!-- todo list -->
         <ul>
             <li v-for='todo in todos' :key='todo.id'>
-                <span class="">{{todo.title}}</span>
-                <input type="button" value="标为完成">
+                <span :class="{completed:todo.completed}">{{todo.title}}</span>
+
+                <input v-if="!todo.completed" type="button" value="标为完成" @click="markAsCompleted(todo)" >
+                <input v-else="!todo.completed" type="button" value="撤回为未完成" @click="markAsUndo(todo)" >
                 <input type="button" value="删除">
                 <input type="text" value="编辑 todo..." />
             </li>
@@ -54,7 +54,7 @@
 </html>
 <script src="https://cdn.bootcss.com/vue/2.5.16/vue.js"></script>
 <script>
-    let id = 0;
+    let id = 1;
     var app = new Vue({
         el: '#todo-app',
         data: function () {
@@ -62,6 +62,7 @@
                 todos: [],
                 newTodoTitle: '',
                 checkEmpty : false,
+                completed : false,
             }
         },
         methods: {
@@ -71,10 +72,16 @@
                     return
                 }
                 this.todos.push(
-                    { id: id++, title: this.newTodoTitle },
+                    { id: id++, title: this.newTodoTitle, completed: false},
                 );
                 this.newTodoTitle = '';
                 this.checkEmpty = false;
+            },
+            markAsCompleted : function (todo) {
+                todo.completed = true;
+            },
+            markAsUndo: function (todo) {
+                todo.completed = false;
             }
         },
         computed: {
