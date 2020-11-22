@@ -6,6 +6,7 @@
     <title>Vue Todo</title>
     <style>
         .completed {
+            color: green;
             text-decoration: line-through;
         }
 
@@ -30,18 +31,24 @@
             <input type="button" value="全部标为完成" />
             <input type="text" placeholder="添加 todo" v-model='newTodoTitle' @keyup.enter='addTodo'
                 v-bind:class="{empty:emptyChecked}" /> <span v-if="emptyChecked"
-                v-bind:class="{selected:emptyChecked}">请输入内容</span>
+                v-bind:class="{selected:emptyChecked}">请输入内容</span>(双击todo编辑)
         </div>
         <!-- todo list -->
         <ul>
             <li v-for='todo in todos' :key='todo.id'>
-                <span :class="[{completed:todo.completed},{deleted:todo.deleted}]">{{todo.title}}</span>
+                <span :class="[{completed:todo.completed},{deleted:todo.deleted}]"
+                    @dblclick="editTodo(todo)">{{todo.title}}</span> &nbsp;&nbsp;&nbsp;
 
                 <input v-if="!todo.completed" type="button" value="标为完成" @click="markAsCompleted(todo)">
                 <input v-else="!todo.completed" type="button" value="撤回为未完成" @click="markAsUndo(todo)">
                 <input v-if="!todo.deleted" type="button" @click="removeTodo(todo)" value="删除">
                 <input v-if="todo.deleted" type="button" value="撤回删除" @click="markAsNotDeleted(todo)">
-                <input type="text" value="编辑 todo..." />
+                <input type="text" value="编辑 todo..." v-if="editedTodo !== null && editedTodo.id == todo.id"
+                    v-model="todo.title" @keyup.enter="editDone(todo)" />
+                <input v-if="editedTodo !== null && editedTodo.id == todo.id" type="button" value="保存编辑"
+                    @click="editDone(todo)" />
+                <input v-if="editedTodo !== null && editedTodo.id == todo.id" type="button" value="撤回编辑"
+                    @click="cancelEdit(todo)" />
             </li>
         </ul>
         <!-- end todo list -->
@@ -70,7 +77,8 @@
                 newTodoTitle: '',
                 checkEmpty: false,
                 completed: false,
-                deleted: false
+                deleted: false,
+                editedTodo: null,
             }
         },
         methods: {
@@ -96,6 +104,27 @@
             },
             markAsNotDeleted: function (todo) {
                 todo.deleted = false;
+            },
+            editTodo: function (todo) {
+                if (todo.completed || todo.deleted) {
+                    return false
+                }
+                this.editedTodo = { id: todo.id, title: todo.title }
+            },
+            editDone: function (todo) {
+                if (todo.title.length == 0) {
+                    todo.title = this.editedTodo.title
+                    this.removeTodo(todo)
+                    this.editedTodo = null
+                }else{
+                    this.markAsNotDeleted(todo)
+                    this.editedTodo = null
+                }
+                
+            },
+            cancelEdit: function (todo) {
+                todo.title = this.editedTodo.title
+                this.editedTodo = null
             }
         },
         computed: {
